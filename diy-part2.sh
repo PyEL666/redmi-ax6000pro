@@ -20,8 +20,10 @@ rm -rf feeds/packages/net/adguardhome
 # --- 3. 针对 TurboACC 的一些修正 (可选，预防冲突) ---
 # 如果编译时遇到 shortcut-fe 相关的报错，可以尝试取消下面的注释
 # sed -i 's/"turboacc"/"package"/g' package/feeds/luci/luci-app-turboacc/root/etc/config/turboacc
-# --- 修复 Rust 编译报错 ---
-# 强制修改 rust Makefile，禁止下载 CI LLVM
-for i in $(find package/feeds/packages/rust -name "Makefile"); do
-    sed -i 's/download-ci-llvm = true/download-ci-llvm = false/g' $i
-done
+# --- 修复 Rust 编译报错 (暴力修正版) ---
+# 1. 强制关闭 download-ci-llvm
+find package/feeds/packages/rust -name "Makefile" -exec sed -i 's/download-ci-llvm = true/download-ci-llvm = false/g' {} +
+
+# 2. 有些 rust 版本会检查 GITHUB_ACTIONS 变量，这里我们在编译脚本里也 unset 掉它
+sed -i '/PKG_BUILD_PARALLEL/a\export GITHUB_ACTIONS=false' package/feeds/packages/rust/Makefile
+
