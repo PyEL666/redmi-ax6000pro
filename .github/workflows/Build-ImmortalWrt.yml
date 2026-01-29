@@ -113,10 +113,9 @@ jobs:
     - name: SSH connection to Actions
       uses: mxschmitt/action-tmate@v3
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
-      # 默认配置其实就是最稳的，只要网络没问题。
-      # 如果还是看不到日志，大概率是 GitHub Actions 网页卡了。
+      with:
+        limit-access-to-actor: false # <--- 这里的修改非常关键：允许非本人Key连接
 
-      
     - name: Download package
       id: package
       run: |
