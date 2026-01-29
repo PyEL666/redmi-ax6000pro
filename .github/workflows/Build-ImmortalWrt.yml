@@ -30,7 +30,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  GITHUB_ACTIONS: false  # <--- 移到这里！全局生效，修复 Rust 编译错误
+  GITHUB_ACTIONS: false # <--- 移到这里！全局生效，修复 Rust 编译错误
 
 jobs:
   build:
@@ -84,27 +84,24 @@ jobs:
     - name: Install feeds
       run: |
         cd openwrt && ./scripts/feeds install -a
-        
+
     - name: Patch rust (disable download-ci-llvm)
       run: |
         cd openwrt
-
         echo "== Before patch =="
         grep -RIn -- "download-ci-llvm" feeds/packages/lang/rust package/feeds/packages/rust 2>/dev/null || true
-
+        
         # 1) 精准替换 OpenWrt rust 包里硬编码的参数
         sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/g' \
           feeds/packages/lang/rust/Makefile 2>/dev/null || true
         sed -i 's/--set=llvm\.download-ci-llvm=true/--set=llvm.download-ci-llvm=false/g' \
           package/feeds/packages/rust/Makefile 2>/dev/null || true
-
+        
         # 2) 兜底：替换其它可能写法
         grep -RIl -- "download-ci-llvm" feeds/packages/lang/rust package/feeds/packages/rust 2>/dev/null \
           | xargs -r sed -i 's/download-ci-llvm *= *true/download-ci-llvm = false/g' || true
-
         echo "== After patch =="
         grep -RIn -- "download-ci-llvm" feeds/packages/lang/rust package/feeds/packages/rust 2>/dev/null || true
-
 
     - name: Load custom feeds
       run: |
