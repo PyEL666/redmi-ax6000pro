@@ -30,7 +30,7 @@ env:
   UPLOAD_FIRMWARE: true
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
-  GITHUB_ACTIONS: false # <--- 移到这里！全局生效，修复 Rust 编译错误
+  GITHUB_ACTIONS: false # <--- 全局生效，修复 Rust 编译错误
 
 jobs:
   build:
@@ -113,8 +113,7 @@ jobs:
     - name: SSH connection to Actions
       uses: mxschmitt/action-tmate@v3
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
-
-
+      
     - name: Download package
       id: package
       run: |
